@@ -10,6 +10,7 @@ namespace RomAssistant.db
 	public class Context : DbContext
 	{
 		public DbSet<User> Users => Set<User>();
+		public DbSet<QuizAnswer> QuizAnswers => Set<QuizAnswer>();
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

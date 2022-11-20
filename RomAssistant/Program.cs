@@ -19,7 +19,8 @@ var serviceBuilder = new ServiceCollection()
 	.AddSingleton(configuration)
 	.AddSingleton(new DiscordSocketConfig()
 	{
-		GatewayIntents = Discord.GatewayIntents.AllUnprivileged
+		GatewayIntents = (Discord.GatewayIntents.AllUnprivileged
+			| Discord.GatewayIntents.MessageContent)
 			& ~Discord.GatewayIntents.GuildScheduledEvents
 			& ~Discord.GatewayIntents.GuildInvites,
 		//		AlwaysDownloadUsers = true,
@@ -28,7 +29,8 @@ var serviceBuilder = new ServiceCollection()
 	.AddSingleton<DiscordSocketClient>()
 	.AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>()))
 	.AddSingleton<InteractionHandler>()
-	;
+	.AddSingleton<IServiceProvider>(sp => sp);
+;
 
 var services = serviceBuilder.BuildServiceProvider();
 
@@ -36,6 +38,7 @@ var services = serviceBuilder.BuildServiceProvider();
 	using (var scope = services.CreateScope())
 	using (var context = scope.ServiceProvider.GetRequiredService<Context>())
 	{
+		//await context.Database.EnsureDeletedAsync();
 		if (context.Database.EnsureCreated())
 		{
 		}

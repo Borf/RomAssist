@@ -1,10 +1,13 @@
-﻿using Discord;
+﻿using CsvHelper;
+using CsvHelper.Configuration;
+using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-using Microsoft.Extensions.Configuration;
-using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using RomAssistant.db;
+using System.Globalization;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace RomAssistant
 {
@@ -32,8 +35,87 @@ namespace RomAssistant
 
 			// Process the InteractionCreated payloads to execute Interactions commands
 			client.InteractionCreated += HandleInteraction;
+			client.MessageReceived += HandleMessage;
 		}
 
+		class CsvEntry
+		{
+			public string DiscordId { get; set; }
+			public string DiscordName { get; set; }
+			public ulong CharacterId { get; set; }
+			public string CharacterName { get; set; }
+			public string Region { get; set; }
+		}
+		private async Task HandleMessage(SocketMessage message)
+		{
+			if (message.Channel.Id != UserIdModule.quizChannelId)
+				return;
+			if (message.Content.ToLower() == UserIdModule.currentAnswer.ToLower() && UserIdModule.answerCount > 0)
+			{
+				var db = services.GetRequiredService<Context>();
+				var user = await db.Users.FindAsync(message.Author.Id);
+				if (user == null)
+				{
+					await message.Author.SendMessageAsync("Sorry you have not registered your character ID and your answer won't be taken. Please use /registerid on the discord server (not this chat) to register your character ID and try again with the next question!");
+					return;
+					user = new User() { Id = message.Author.Id, DiscordName = message.Author.Username + "#" + message.Author.Discriminator };
+					db.Users.Add(user);
+					await db.SaveChangesAsync();
+				}
+
+				if (db.QuizAnswers.Any(qa => qa.User == user))
+					return;
+				UserIdModule.answerCount--;
+				db.QuizAnswers.Add(new QuizAnswer()
+				{
+					Answer = UserIdModule.currentAnswer,
+					Answered = message.Content,
+					User = user
+				});
+				await db.SaveChangesAsync();
+
+				await UserIdModule.quizInteraction.ModifyOriginalResponseAsync(m => m.Content = UserIdModule.answerCount + " answer left");
+
+				var entries = new List<CsvEntry>();
+				if(UserIdModule.answerCount <= 0)
+				{
+					var winnerMsg = "That's it for this question! the winners are\n\n";
+					var winners = db.QuizAnswers.Include(q => q.User).Where(q => q.Answered == UserIdModule.currentAnswer).ToList();
+					winners.ForEach(a => winnerMsg += "<@" + a.User.Id + ">\n");
+					winners.ForEach(a => entries.Add(new CsvEntry() {
+						 CharacterId = a.User.CharacterId,
+						 DiscordId = "'" + a.User.Id,
+						 DiscordName = a.User.DiscordName,
+						 Region = a.User?.Region.ToString() ?? "",
+						 CharacterName = a.User?.CharacterName ?? "",
+					}));
+					await message.Channel.SendMessageAsync(winnerMsg);
+
+					using (var ms = new MemoryStream())
+					{
+						using (var writer = new StreamWriter(ms))
+						using (var csv = new CsvWriter(writer, new CsvConfiguration(CultureInfo.InvariantCulture)
+						{
+							HasHeaderRecord = true,
+							ShouldQuote = a => { return a.Row.Index == 1 || a.Row.Index == 3; }
+						}))
+						{
+							csv.WriteRecords(entries);
+						}
+
+						var host = await message.Channel.GetUserAsync(UserIdModule.quizHost);
+						await host.SendFileAsync(new MemoryStream(ms.GetBuffer()), "results.csv", "Here is your file for answer " + UserIdModule.currentAnswer);
+					}
+
+					UserIdModule.quizChannelId = 0;
+				}
+
+
+				
+
+
+			}
+		}
 
 		private Task LogAsync(LogMessage message)
 		{
@@ -44,6 +126,7 @@ namespace RomAssistant
 		{
 			//await _handler.RegisterCommandsToGuildAsync(724054882717532171, true);
 			await handler.RegisterCommandsToGuildAsync(724054882717532171, true); //borf test
+			await handler.RegisterCommandsToGuildAsync(248700646302285824, true); //community
 			//				await _handler.RegisterCommandsGloballyAsync(true);
 		}
 

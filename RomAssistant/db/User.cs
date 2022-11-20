@@ -22,6 +22,7 @@ namespace RomAssistant.db
 	{
 		[Key]
 		public ulong Id { get; set; }
+		public string DiscordName { get; set; } = "";
 		public ulong CharacterId { get; set; } = 0;
 		public string CharacterName { get; set; } = "";
 		public Regions Region { get; set; } = Regions.None;
