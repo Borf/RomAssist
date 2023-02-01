@@ -1,6 +1,9 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Services;
+using Google.Apis.Sheets.v4;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RomAssistant;
@@ -15,11 +18,25 @@ var configuration = new ConfigurationBuilder()
 	.Build();
 
 
+GoogleCredential credential;
+using (var stream = new FileStream("data/client_secrets.json", FileMode.Open, FileAccess.Read))
+{
+	credential = GoogleCredential.FromStream(stream);
+	if (credential.IsCreateScopedRequired)
+		credential = credential.CreateScoped(new string[] { SheetsService.Scope.Drive });
+}
+var sheetService = new SheetsService(new BaseClientService.Initializer()
+{
+	HttpClientInitializer = credential,
+	ApplicationName = "TicketBot"
+});
+
 var serviceBuilder = new ServiceCollection()
 	.AddSingleton(configuration)
+	.AddSingleton<SheetsService>(sheetService)
 	.AddSingleton(new DiscordSocketConfig()
 	{
-		GatewayIntents = (Discord.GatewayIntents.AllUnprivileged
+	GatewayIntents = (Discord.GatewayIntents.AllUnprivileged
 			| Discord.GatewayIntents.MessageContent)
 			& ~Discord.GatewayIntents.GuildScheduledEvents
 			& ~Discord.GatewayIntents.GuildInvites,

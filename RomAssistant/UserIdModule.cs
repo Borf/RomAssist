@@ -114,12 +114,12 @@ namespace RomAssistant
 
 		class CsvEntry
 		{
-			public string Emote { get; set; }
-			public string DiscordId { get; set; }
-			public string DiscordName { get; set; }
+			public string Emote { get; set; } = "";
+			public string DiscordId { get; set; } = "";
+			public string DiscordName { get; set; } = "";
 			public ulong CharacterId { get; set; }
-			public string CharacterName { get; set; }
-			public string Region { get; set; }
+			public string CharacterName { get; set; } = "";
+			public string Region { get; set; } = "";
 		}
 
 		//[DoAdminCheck]
@@ -207,13 +207,13 @@ namespace RomAssistant
 
 		class CsvEntry2
 		{
-			public string Answer { get; set; }
-			public string DiscordId { get; set; }
-			public string DiscordName { get; set; }
+			public string Answer { get; set; } = "";
+			public string DiscordId { get; set; } = "";
+			public string DiscordName { get; set; } = "";
 			public ulong CharacterId { get; set; }
-			public string CharacterName { get; set; }
-			public string Region { get; set; }
-			public string Answered { get; set; }
+			public string CharacterName { get; set; } = "";
+			public string Region { get; set; } = "";
+			public string Answered { get; set; } = "";
 		}
 
 		[SlashCommand("quizresults", "sends a file with the quiz results")]

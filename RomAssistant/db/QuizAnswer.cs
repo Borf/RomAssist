@@ -13,8 +13,8 @@ namespace RomAssistant.db
 		public int Id { get; set; }
 
 		public DateTime DateTime { get; set; } = DateTime.Now;
-		public string Answer { get; set; }
-		public User User { get; set; }
-		public string Answered { get; set; }
+		public string Answer { get; set; } = "";
+		public User User { get; set; } = null!;
+		public string Answered { get; set; } = "";
 	}
 }

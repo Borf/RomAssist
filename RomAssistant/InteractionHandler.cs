@@ -40,11 +40,11 @@ namespace RomAssistant
 
 		class CsvEntry
 		{
-			public string DiscordId { get; set; }
-			public string DiscordName { get; set; }
+			public string DiscordId { get; set; } = "";
+			public string DiscordName { get; set; } = "";
 			public ulong CharacterId { get; set; }
-			public string CharacterName { get; set; }
-			public string Region { get; set; }
+			public string CharacterName { get; set; } = "";
+			public string Region { get; set; } = "";
 		}
 		private async Task HandleMessage(SocketMessage message)
 		{
