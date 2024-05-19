@@ -35,7 +35,7 @@ namespace RomAssistant
 
 			// Process the InteractionCreated payloads to execute Interactions commands
 			client.InteractionCreated += HandleInteraction;
-			client.MessageReceived += HandleMessage;
+			//client.MessageReceived += HandleMessage;
 		}
 
 		class CsvEntry
@@ -46,7 +46,7 @@ namespace RomAssistant
 			public string CharacterName { get; set; } = "";
 			public string Region { get; set; } = "";
 		}
-		private async Task HandleMessage(SocketMessage message)
+		/*private async Task HandleMessage(SocketMessage message)
 		{
 			if (message.Channel.Id != UserIdModule.quizChannelId)
 				return;
@@ -115,7 +115,7 @@ namespace RomAssistant
 
 
 			}
-		}
+		}*/
 
 		private Task LogAsync(LogMessage message)
 		{
@@ -127,14 +127,15 @@ namespace RomAssistant
 			//await _handler.RegisterCommandsToGuildAsync(724054882717532171, true);
 			await handler.RegisterCommandsToGuildAsync(724054882717532171, true); //borf test
 			await handler.RegisterCommandsToGuildAsync(248700646302285824, true); //community
-			//				await _handler.RegisterCommandsGloballyAsync(true);
+			//await handler.RegisterCommandsToGuildAsync(885126454545891398, true); //GL
+			//await handler.RegisterCommandsGloballyAsync(true);
 		}
 
 		private async Task HandleInteraction(SocketInteraction interaction)
 		{
 			try
 			{
-//				Console.WriteLine("Got interaction " + interaction.Data.ToString());
+				Console.WriteLine("Got interaction " + interaction.Data.ToString());
 				// Create an execution context that matches the generic type parameter of your InteractionModuleBase<T> modules.
 				var context = new SocketInteractionContext(client, interaction);
 
@@ -156,8 +157,9 @@ namespace RomAssistant
 					}
 				}
 			}
-			catch
+			catch(Exception ex)
 			{
+				Console.WriteLine(ex.ToString());
 				// If Slash Command execution fails it is most likely that the original interaction acknowledgement will persist. It is a good idea to delete the original
 				// response, or at least let the user know that something went wrong during the command execution.
 				if (interaction.Type is InteractionType.ApplicationCommand)

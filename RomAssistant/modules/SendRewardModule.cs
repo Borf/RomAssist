@@ -12,7 +12,6 @@ using RomAssistant.db;
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
-using TicketBot.attributes;
 
 namespace RomAssistant
 {
@@ -33,7 +32,8 @@ namespace RomAssistant
 			this.sheetsService = sheetsService;
 		}
 
-		[SlashCommand("sendrewards", "Allows you to send a reward")]
+        [DoAdminCheck]
+        [SlashCommand("sendrewards", "Allows you to send a reward")]
 		public async Task SendRewards([Summary(description: "The ID in the url")] string sheetId = "1-r92MOoq413SzUZ740sEJAWQ1ml3-vbtfsl9I38su68")
 		{
 			if(SendTask != null)
@@ -57,7 +57,7 @@ namespace RomAssistant
 					.WithSelectMenu(smb);
 				await RespondAsync("What tab would you like to use?", components: cb.Build(), ephemeral: true);
 
-			}catch(Exception ex)
+			}catch(Exception)
 			{
 				await RespondAsync("The discord bot has no access to this sheet. Please add ticketbot@ticketbot-366321.iam.gserviceaccount.com to this sheet", ephemeral: true);
 			}
@@ -100,16 +100,20 @@ namespace RomAssistant
 			{
 				var row = values.Values[i];
 				var status = "";
-
+				if (row[0].ToString() == "")
+					continue;
 				if(row.Count > 2)
 					status = row[2].ToString();
 				if (status == "Sent")
 					continue;
 				string discordName = (string)row[0];
-				if(discordName.Contains("#"))
+				Console.WriteLine("Sending to " + discordName);
+				//if(discordName.Contains("#"))
 				{
 					var user = users.FirstOrDefault(u => u.Username + "#" + u.Discriminator == discordName);
-					if (user == null)
+					if(user == null && !discordName.Contains("#"))
+                        user = users.FirstOrDefault(u => u.Username == discordName);
+                    if (user == null)
 					{
 						sheetsService.Spreadsheets.Values.BatchUpdate(SetStatus(tabTitle, i + 1, "Error: User not found"), sheetId).Execute();
 						continue;
@@ -125,7 +129,7 @@ namespace RomAssistant
 						sheetsService.Spreadsheets.Values.BatchUpdate(SetStatus(tabTitle, i + 1, "Error: " + ex.Message), sheetId).Execute();
 					}
 				}
-				await Task.Delay(5000);
+				await Task.Delay(500);
 			}
 
 			Console.WriteLine("Done!");
