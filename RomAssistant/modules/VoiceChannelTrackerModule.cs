@@ -78,7 +78,7 @@ public class VoiceChannelTrackerModule : InteractionModuleBase<SocketInteraction
     }
 
     [SlashCommand("triggerword", "Sets a trigger word")]
-    public async Task TriggerWord(string word = "")
+    public async Task TriggerWord(string word = "", int time = 5)
     {
         word = word.ToLower();
         if (Context.Channel.GetChannelType() != ChannelType.Stage)
@@ -103,7 +103,7 @@ public class VoiceChannelTrackerModule : InteractionModuleBase<SocketInteraction
         }
         else
         {
-            voiceTracker.triggerWords[Context.Channel.Id] = word;
+            voiceTracker.triggerWords[Context.Channel.Id] = (Word: word, EndTime: DateTimeOffset.Now + TimeSpan.FromMinutes(time));
             await RespondAsync("Set trigger word to " + word, ephemeral: true);
         }
     }

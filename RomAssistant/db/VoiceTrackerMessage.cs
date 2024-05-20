@@ -17,4 +17,5 @@ public class VoiceTrackerMessage
     public VoiceTrackerSession Session { get; set; }
     public ulong DiscordMemberId { get; set; }
     public string Message { get; set; } = string.Empty;
+    public long Time { get; set; } = DateTimeOffset.Now.ToUnixTimeSeconds();
 }

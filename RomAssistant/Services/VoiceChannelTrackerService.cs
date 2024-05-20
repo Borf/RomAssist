@@ -15,7 +15,7 @@ public class VoiceChannelTrackerService : IBackgroundService
     private IServiceProvider serviceProvider;
 
     public Dictionary<ulong, int> activeChannels { get; private set; } = new();
-    public Dictionary<ulong, string> triggerWords { get; private set; } = new();
+    public Dictionary<ulong, (string Word, DateTimeOffset EndTime)> triggerWords { get; private set; } = new();
 
     public VoiceChannelTrackerService(DiscordSocketClient discord, IServiceProvider serviceProvider)
     {
@@ -51,16 +51,22 @@ public class VoiceChannelTrackerService : IBackgroundService
             var sessionId = activeChannels[message.Channel.Id];
             using var scope = serviceProvider.CreateScope();
             using var context = scope.ServiceProvider.GetRequiredService<Context>();
-            if (message.Content.ToLower().Contains(triggerWords[message.Channel.Id]))
+            if (message.Content.ToLower().Contains(triggerWords[message.Channel.Id].Word))
             {
-                var msg = new VoiceTrackerMessage()
+                if (DateTimeOffset.Now > triggerWords[message.Channel.Id].EndTime)
+                    Console.WriteLine("Contains trigger word but skipped due to timeout");
+                else
                 {
-                    DiscordMemberId = message.Author.Id,
-                    SessionId = sessionId,
-                    Message = message.Content
-                };
-                context.VoiceTrackerMessages.Add(msg);
-                await context.SaveChangesAsync();
+                    var msg = new VoiceTrackerMessage()
+                    {
+                        DiscordMemberId = message.Author.Id,
+                        SessionId = sessionId,
+                        Message = message.Content,
+                        Time = DateTimeOffset.Now.ToUnixTimeSeconds(),
+                    };
+                    context.VoiceTrackerMessages.Add(msg);
+                    await context.SaveChangesAsync();
+                }
             }
 
         }
