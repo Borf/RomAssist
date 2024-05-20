@@ -25,7 +25,7 @@ namespace RomAssistant.db
             //.EnableDetailedErrors()
                 .UseSqlite(new SqliteConnectionStringBuilder()
                 {
-                    DataSource = "Database.db",
+                    DataSource = "data/Database.db",
                     DefaultTimeout = 60,
                     Cache = SqliteCacheMode.Shared,
                 }.ToString());
