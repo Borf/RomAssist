@@ -23,7 +23,7 @@ public class VoiceChannelTrackerService : IBackgroundService
         this.serviceProvider = serviceProvider;
     }
 
-    protected override Task Run()
+    protected override async Task Run()
     {
         {
             using var scope = serviceProvider.CreateScope();
@@ -37,9 +37,9 @@ public class VoiceChannelTrackerService : IBackgroundService
         while (!token.IsCancellationRequested)
         {
             //not sure what to do here, I guess it's not a background service but a normal singleton
+            await Task.Delay(-1);
 
         }
-        return Task.CompletedTask;
     }
 
     private async Task MessageReceived(SocketMessage message)
