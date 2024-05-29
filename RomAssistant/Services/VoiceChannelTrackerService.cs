@@ -44,6 +44,8 @@ public class VoiceChannelTrackerService : IBackgroundService
 
     private async Task MessageReceived(SocketMessage message)
     {
+        if (message.Author.IsBot)
+            return;
         if(message.Channel.GetChannelType() == ChannelType.Stage && activeChannels.ContainsKey(message.Channel.Id) && triggerWords.ContainsKey(message.Channel.Id))
         {
             var channel = message.Channel as IStageChannel;
@@ -57,15 +59,25 @@ public class VoiceChannelTrackerService : IBackgroundService
                     Console.WriteLine("Contains trigger word but skipped due to timeout");
                 else
                 {
-                    var msg = new VoiceTrackerMessage()
+                    var stageChannel = message.Channel as SocketStageChannel;
+                    var currentUsers = stageChannel.ConnectedUsers;
+                    Console.WriteLine("Current users: " + string.Join(", ", currentUsers.Select(u => u.Username)));
+                    if (currentUsers.Any(u => u.Id == message.Author.Id))
                     {
-                        DiscordMemberId = message.Author.Id,
-                        SessionId = sessionId,
-                        Message = message.Content,
-                        Time = DateTimeOffset.Now.ToUnixTimeSeconds(),
-                    };
-                    context.VoiceTrackerMessages.Add(msg);
-                    await context.SaveChangesAsync();
+                        var msg = new VoiceTrackerMessage()
+                        {
+                            DiscordMemberId = message.Author.Id,
+                            SessionId = sessionId,
+                            Message = message.Content,
+                            Time = DateTimeOffset.Now.ToUnixTimeSeconds(),
+                        };
+                        context.VoiceTrackerMessages.Add(msg);
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        Console.WriteLine("Ignored trigger word due to not being on the voice channel");
+                    }
                 }
             }
 

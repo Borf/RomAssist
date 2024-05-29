@@ -48,7 +48,6 @@ public class VoiceChannelTrackerModule : InteractionModuleBase<SocketInteraction
         voiceTracker.activeChannels[Context.Channel.Id] = session.Id;
 
         var channel = Context.Channel as SocketStageChannel;
-
         var currentUsers = channel.ConnectedUsers;
         Console.WriteLine("Current users: " + string.Join(", ", currentUsers.Select(u => u.Username)));
         foreach(var user in currentUsers)
@@ -124,10 +123,24 @@ public class VoiceChannelTrackerModule : InteractionModuleBase<SocketInteraction
             return;
         }
 
-        string msg = "Tracked time:";
-        msg += string.Join("\n", session.Members.Select(m => $"<@{m.Id}> joined for {m.AccumulatedTime} seconds"));
+        string msg = "Tracked time:\n";
+        foreach (var m in session.Members)
+        {
+            var user = Context.Guild.GetUser(m.Id);
+            msg += $"<@{m.Id}>,";
+            msg += $"{m.Id},";
+            msg += $"{user?.Username},";
+            msg += $"{user?.Discriminator},";
+            msg += $"{user?.Nickname},";
+            msg += $"{m.AccumulatedTime},";
+            foreach(var trackedMessage in context.VoiceTrackerMessages.Where(mm => mm.SessionId == session.Id && mm.DiscordMemberId == m.Id))
+            {
+                msg += $"{DateTimeOffset.FromUnixTimeSeconds(trackedMessage.Time)},\"{trackedMessage.Message.Replace("\"", "\\\"")}\",";
+            }
+            msg += "\n";
+        }
 
-        if(msg.Length < 1500)
+        if (msg.Length < 1500)
             await RespondAsync(msg, ephemeral: true);
         else
         {
