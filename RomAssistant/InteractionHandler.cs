@@ -135,9 +135,15 @@ namespace RomAssistant
 		{
 			try
 			{
-				Console.WriteLine("Got interaction " + interaction.Data.ToString());
-				// Create an execution context that matches the generic type parameter of your InteractionModuleBase<T> modules.
-				var context = new SocketInteractionContext(client, interaction);
+                string name = "";
+                if (interaction is SocketCommandBase interact)
+                    name = "/" + interact.CommandName;
+                else if (interaction.Data.GetType().Name == "MessageComponentInteractionData")
+                    name = interaction.Data.GetType().GetProperty("CustomId")?.GetValue(interaction.Data)?.ToString() ?? "-";
+
+                Console.Write("Got interaction '" + name + "' from user " + interaction.User.Username + " in channel " + interaction.Channel.Name);
+                // Create an execution context that matches the generic type parameter of your InteractionModuleBase<T> modules.
+                var context = new SocketInteractionContext(client, interaction);
 
 				// Execute the incoming command.
 				var result = await handler.ExecuteCommandAsync(context, services);
