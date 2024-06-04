@@ -144,7 +144,7 @@ public class VoiceChannelTrackerModule : InteractionModuleBase<SocketInteraction
             await RespondAsync(msg, ephemeral: true);
         else
         {
-            await RespondWithFileAsync(new FileAttachment(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(msg)), "results.txt"), "Results");
+            await RespondWithFileAsync(new FileAttachment(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(msg)), "results.txt"), "Results", ephemeral: true);
         }
 
     }
