@@ -147,24 +147,30 @@ public class VoiceChannelTrackerService : IBackgroundService
 
     public async void StopTracking(ulong id)
     {
+        try
         {
-            var sessionId = activeChannels[id];
-            using var scope = serviceProvider.CreateScope();
-            using var context = scope.ServiceProvider.GetRequiredService<Context>();
-            var session = context.VoiceTrackerSessions.Find(sessionId)!;
-            session.Active = false;
-            context.VoiceTrackerSessions.Update(session);
-            await context.SaveChangesAsync();
-
-            var members = context.VoiceTrackerMembers.Where(m => m.SessionId == sessionId && m.LastJoinTime != 0);
-            foreach (var member in members)
             {
-                member.AccumulatedTime += DateTimeOffset.Now.ToUnixTimeSeconds() - member.LastJoinTime;
-                member.LastJoinTime = 0;
-                context.VoiceTrackerMembers.Update(member);
+                var sessionId = activeChannels[id];
+                using var scope = serviceProvider.CreateScope();
+                using var context = scope.ServiceProvider.GetRequiredService<Context>();
+                var session = context.VoiceTrackerSessions.Find(sessionId)!;
+                session.Active = false;
+                context.VoiceTrackerSessions.Update(session);
+                await context.SaveChangesAsync();
+
+                var members = context.VoiceTrackerMembers.Where(m => m.SessionId == sessionId && m.LastJoinTime != 0);
+                foreach (var member in members)
+                {
+                    member.AccumulatedTime += DateTimeOffset.Now.ToUnixTimeSeconds() - member.LastJoinTime;
+                    member.LastJoinTime = 0;
+                    context.VoiceTrackerMembers.Update(member);
+                }
+                await context.SaveChangesAsync();
             }
-            await context.SaveChangesAsync();
+            this.activeChannels.Remove(id);
+        }catch(Exception ex)
+        {
+            Console.WriteLine(ex);
         }
-        this.activeChannels.Remove(id);
     }
 }
