@@ -103,7 +103,20 @@ public class VoiceChannelTrackerModule : InteractionModuleBase<SocketInteraction
         else
         {
             voiceTracker.triggerWords[Context.Channel.Id] = (Word: word, EndTime: DateTimeOffset.Now + TimeSpan.FromMinutes(time));
-            await RespondAsync("Set trigger word to " + word, ephemeral: true);
+            try
+            {
+                await RespondAsync("Set trigger word to " + word, ephemeral: true);
+            } catch (Exception ex) { Console.WriteLine(ex); }
+            try
+            {
+                await Context.Channel.SendFileAsync(new FileAttachment(Path.Combine("data", "triggerstart.png"), "trigger start.png"));
+            }
+            catch (Exception ex) { Console.WriteLine(ex); }
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(TimeSpan.FromMinutes(time));
+                await Context.Channel.SendFileAsync(new FileAttachment(Path.Combine("data", "triggerend.png"), "trigger end.png"));
+            });
         }
     }
 

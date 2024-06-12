@@ -73,6 +73,8 @@ public class VoiceChannelTrackerService : IBackgroundService
                         };
                         context.VoiceTrackerMessages.Add(msg);
                         await context.SaveChangesAsync();
+
+                        await message.AddReactionAsync(Emoji.Parse(":ok:"));
                     }
                     else
                     {
