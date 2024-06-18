@@ -78,6 +78,7 @@ public class VoiceChannelTrackerService : IBackgroundService
                     }
                     else
                     {
+                        await message.AddReactionAsync(Emoji.Parse(":x:"));
                         Console.WriteLine("Ignored trigger word due to not being on the voice channel");
                     }
                 }
