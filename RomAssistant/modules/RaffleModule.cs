@@ -57,7 +57,7 @@ public class RaffleModule : InteractionModuleBase<SocketInteractionContext>
         foreach(var count in raffle.RaffleCount)
             message += $"- {count.Key}: {count.Value}\n";
         message += $"\n" +
-                   $"Number of registrations\n";
+                   $"Number of Entries\n";
 
         var counts = context.RaffleAnswers.Where(r => r.RaffleId == raffle.Id).Include(r => r.User).ToList().CountBy(r => r.User.Server.BaseServer());
         foreach (var server in new[] { Server.EU, Server.NA, Server.SEA })
