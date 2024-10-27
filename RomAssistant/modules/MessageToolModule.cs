@@ -1,17 +1,31 @@
 ﻿using CsvHelper;
 using Discord;
 using Discord.Interactions;
+using Microsoft.Extensions.DependencyInjection;
+using RomAssistant.db;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Management;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace RomAssistant.modules;
 public class MessageToolModule : InteractionModuleBase<SocketInteractionContext>
 {
+    private Context context;
+    private IServiceProvider services;
+    private InteractionService handler;
+
+    public MessageToolModule(Context context, IServiceProvider services, InteractionService handler)
+    {
+        this.context = context;
+        this.services = services;
+        this.handler = handler;
+    }
+
     [DoAdminCheck]
     [MessageCommand("Extract Message")]
     public async Task ExtractMessage(IMessage message)
@@ -70,5 +84,27 @@ public class MessageToolModule : InteractionModuleBase<SocketInteractionContext>
         }
         else
             await ModifyOriginalResponseAsync(m => m.Content = "Error");
+    }
+
+
+    [DoAdminCheck]
+    [MessageCommand("Admin Message")]
+    public async Task AdminMessage(IMessage message)
+    {
+        var raffle = context.Raffles.FirstOrDefault(r => r.DiscordMessageId == message.Id);
+        if (raffle != null)
+        {
+            //TODO: cache this please
+            var assembly = Assembly.GetEntryAssembly()!;
+            using var scope = services.CreateScope();
+            var type = assembly.GetTypes().First(type => type.Name == "RaffleModule");
+
+            var parameters = type.GetConstructors().Where(c => !c.IsStatic).First().GetParameters();
+            var args = parameters.Select(p => scope.ServiceProvider.GetService(p.ParameterType)).ToArray();
+            RaffleModule handler = (RaffleModule)Activator.CreateInstance(type, args);
+            type.InvokeMember("SetContext", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.InvokeMethod, null, handler, new object[] { Context });
+            type.GetField("context").SetValue(handler, context);
+            await handler.HandleAdmin(message);
+        }
     }
 }

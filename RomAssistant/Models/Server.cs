@@ -39,4 +39,6 @@ public static class ServerHelper
         Server.SEAPC => "SEA Port City",
         _ => throw new Exception("You did something wrong"),
     };
+
+    public static Server BaseServer(this Server server) => (Server)((int)server & 0xff000);
 }
