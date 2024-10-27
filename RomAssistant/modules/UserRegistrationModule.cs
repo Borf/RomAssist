@@ -62,7 +62,11 @@ public class UserRegistrationModule : InteractionModuleBase<SocketInteractionCon
     }
 
     [ComponentInteraction("userregistration_changeserver")]
-    public async Task ChangeServer(bool overrideMessage = false)
+    public async Task ChangeServer()
+    {
+        await ChangeServer(false);
+    }
+    public async Task ChangeServer(bool overrideMessage)
     {
         if (overrideMessage)
             await DeferAsync(ephemeral: true);
