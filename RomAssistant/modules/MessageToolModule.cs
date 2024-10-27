@@ -16,6 +16,7 @@ public class MessageToolModule : InteractionModuleBase<SocketInteractionContext>
     [MessageCommand("Extract Message")]
     public async Task ExtractMessage(IMessage message)
     {
+        await DeferAsync(ephemeral: true);
         // make a safety cast to check if the message is ISystem- or IUserMessage
         if (message is IUserMessage userMessage)
         {
@@ -34,7 +35,7 @@ public class MessageToolModule : InteractionModuleBase<SocketInteractionContext>
             foreach (var reaction in msg2.Reactions)
             {
                 var reactions = await msg2.GetReactionUsersAsync(reaction.Key, 9999).FlattenAsync();
-                foreach(var r in reactions)
+                foreach (var r in reactions)
                 {
                     records.Add(new
                     {
@@ -54,18 +55,20 @@ public class MessageToolModule : InteractionModuleBase<SocketInteractionContext>
                 writer.Flush();
                 data2 = writer.ToString();
             }
-            
 
 
-            await RespondWithFilesAsync(
-                new List<FileAttachment>()
+
+            await ModifyOriginalResponseAsync(m =>
+            {
+                m.Attachments = new List<FileAttachment>()
                 {
                     new FileAttachment(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(data)), message.Id + "metadata.txt"),
                     new FileAttachment(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(data2)), message.Id + "reactions.csv")
-                },
-                "Message information:", ephemeral: true);
+                };
+                m.Content = "Message information:";
+            });
         }
         else
-            await RespondAsync(text: ":x: You cant pin system messages!", ephemeral: true);
+            await ModifyOriginalResponseAsync(m => m.Content = "Error");
     }
 }
