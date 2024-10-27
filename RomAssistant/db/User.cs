@@ -12,12 +12,13 @@ namespace RomAssistant.db
 	public class User
 	{
 		[Key]
-		public ulong Id { get; set; }
-		public string DiscordName { get; set; } = "";
+		public ulong DiscordId { get; set; }
 		public ulong CharacterId { get; set; } = 0;
 		public Server Server { get; set; } = 0;
         public string CharacterName { get; set; } = "";
 		public string Guild { get; set; } = "";
 		public ulong AccountId { get; set; } = 0;
+        public DateTimeOffset? LastCheckTime { get; set; } = null;
+        public DateTimeOffset? LastUpdateTime { get; set; } = null;
     }
 }

@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "RomAssistant": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "remoteDebugEnabled": false
+    }
+  }
+}

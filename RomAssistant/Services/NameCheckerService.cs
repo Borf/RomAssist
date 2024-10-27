@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using RomAssistant.db;
-using RomAssistant.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -11,7 +10,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
-namespace IMPTShuffleBot.services;
+namespace RomAssistant.Services;
 
 public class NameCheckerService : IBackgroundService
 {
@@ -24,11 +23,11 @@ public class NameCheckerService : IBackgroundService
 
     protected override async Task Run()
     {
-        while(!token.IsCancellationRequested)
+        while (!token.IsCancellationRequested)
         {
             using var scope = serviceProvider.CreateScope();
             using var context = scope.ServiceProvider.GetRequiredService<Context>();
-            foreach(var player in context.Users.ToList())
+            foreach (var player in context.Users.ToList())
             {
                 if (player.CharacterId != 0 && string.IsNullOrEmpty(player.CharacterName))
                 {
@@ -51,7 +50,8 @@ public class NameCheckerService : IBackgroundService
                             player.AccountId = ulong.Parse(charInfo?["AccountId"]?.ToString() ?? "0");
                             await context2.SaveChangesAsync();
                         }
-                    }catch(Exception ex)
+                    }
+                    catch (Exception ex)
                     {
                         Console.WriteLine("[NameChecker] " + ex.ToString());
                     }
@@ -59,7 +59,7 @@ public class NameCheckerService : IBackgroundService
             }
 
 
-            await Task.Delay(TimeSpan.FromMinutes(1), this.token);
+            await Task.Delay(TimeSpan.FromMinutes(1), token);
         }
     }
 

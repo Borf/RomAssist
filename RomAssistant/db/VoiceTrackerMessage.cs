@@ -14,7 +14,7 @@ public class VoiceTrackerMessage
     public int Id { get; set; }
     public int SessionId { get; set; }
     [ForeignKey(nameof(SessionId))]
-    public VoiceTrackerSession Session { get; set; }
+    public VoiceTrackerSession Session { get; set; } = null!;
     public ulong DiscordMemberId { get; set; }
     public string Message { get; set; } = string.Empty;
     public long Time { get; set; } = DateTimeOffset.Now.ToUnixTimeSeconds();

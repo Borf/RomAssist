@@ -100,7 +100,7 @@ namespace RomAssistant
 			{
 				var row = values.Values[i];
 				var status = "";
-				if (row[0].ToString() == "")
+				if (row.Count < 1 || row[0].ToString() == "")
 					continue;
 				if(row.Count > 2)
 					status = row[2].ToString();
@@ -110,8 +110,12 @@ namespace RomAssistant
 				Console.WriteLine("Sending to " + discordName);
 				//if(discordName.Contains("#"))
 				{
-					var user = users.FirstOrDefault(u => u.Username + "#" + u.Discriminator == discordName);
-					if(user == null && !discordName.Contains("#"))
+					IGuildUser? user = null;
+					if (discordName.Contains("#"))
+						user = users.FirstOrDefault(u => u.Username + "#" + u.Discriminator == discordName);
+					else if (ulong.TryParse(discordName, out ulong did))
+						user = users.FirstOrDefault(u => u.Id == did);
+					else if(user == null && !discordName.Contains("#"))
                         user = users.FirstOrDefault(u => u.Username == discordName);
                     if (user == null)
 					{

@@ -13,7 +13,7 @@ public class VoiceTrackerMember
 {
     public int SessionId { get; set; }
     [ForeignKey(nameof(SessionId))]
-    public VoiceTrackerSession Session { get; set; }
+    public VoiceTrackerSession Session { get; set; } = null!;
     public ulong Id { get; set; }
     public ulong Cid { get; set; }
     public Server Server { get; set; } = Server.Unknown;

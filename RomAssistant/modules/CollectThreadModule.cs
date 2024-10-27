@@ -7,6 +7,7 @@ using Discord.WebSocket;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json.Linq;
 using RomAssistant.db;
 using System;
@@ -70,7 +71,10 @@ namespace RomAssistant.modules
                             if (sheetData.Values[row][0] == null)
                                 continue;
                             if (sheetData.Values[row][0] == "'" + msg.Id + "")
+                            {
                                 index = row;
+                                sheetData.Values[row][0] = "PROCESSED";
+                            }
                         }
                     }
                     if (index == rowIndex)
@@ -91,13 +95,15 @@ namespace RomAssistant.modules
                             {
                                 "'" + msg.Id + "",
                                 msg.Timestamp,
-                                msg.Author.Username + "#" + msg.Author.Discriminator,
+                                msg.Author.Id + "",
+                                msg.Author.Username,
                                 msg.Content,
                                 attachments[0],
                                 attachments[1],
                                 attachments[2],
                                 attachments[3],
                                 msg.EditedTimestamp,
+                                string.Join(", ", msg.Reactions.Select(kv => kv.Key.Name +"[" + kv.Value.ReactionCount + "]"))
                             }
                         }
                     };
@@ -111,6 +117,36 @@ namespace RomAssistant.modules
                 }, sheetId);
                 req.Execute();
                 Data.Clear();
+
+                foreach(var r in sheetData.Values)
+                {
+                    if (r == null || r.Count < 1 || r[0]?.ToString() == "PROCESSED")
+                        continue;
+                    Data.Add(new ValueRange()
+                    {
+                        Range = $"'{tab.Properties.Title}'!A{rowIndex}",
+                        Values = new List<IList<Object>> { r }
+                    });
+                    rowIndex++;
+                    if(Data.Count > 100)
+                    {
+                        sheetsService.Spreadsheets.Values.BatchUpdate(new BatchUpdateValuesRequest()
+                        {
+                            ValueInputOption = "USER_ENTERED",
+                            Data = Data,
+                        }, sheetId).Execute();
+                        Data.Clear();
+                    }
+                }
+                if (Data.Count > 0)
+                {
+                    sheetsService.Spreadsheets.Values.BatchUpdate(new BatchUpdateValuesRequest()
+                    {
+                        ValueInputOption = "USER_ENTERED",
+                        Data = Data,
+                    }, sheetId).Execute();
+                    Data.Clear();
+                }
 
 
                 status += "DONE!\n";
