@@ -35,13 +35,13 @@ public class UserRegistrationModule : InteractionModuleBase<SocketInteractionCon
     public async Task StartLink(bool overrideMessage)
     {
         var user = context.Users.Find(Context.User.Id);
-        if (user == null || user.CharacterId != 0)
+        if (user != null && user.CharacterId != 0)
         {
             if (!overrideMessage)
                 await RespondAsync("Loading...", ephemeral: true);
         }
         if (user == null)
-            await ChangeServer();
+            await ChangeServer(overrideMessage);
         else if (user.CharacterId == 0)
             await RespondWithModalAsync<CidModal>("userregistration_registercid:" + overrideMessage);
         else
@@ -62,9 +62,12 @@ public class UserRegistrationModule : InteractionModuleBase<SocketInteractionCon
     }
 
     [ComponentInteraction("userregistration_changeserver")]
-    public async Task ChangeServer()
+    public async Task ChangeServer(bool overrideMessage = false)
     {
-        await DeferAsync(ephemeral: true);
+        if (overrideMessage)
+            await DeferAsync(ephemeral: true);
+        else
+            await RespondAsync("Loading...", ephemeral: true);
         await ModifyOriginalResponseAsync(m =>
         {
             m.Content = "# What server are you playing on?";

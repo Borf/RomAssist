@@ -82,6 +82,7 @@ public class RaffleModule : InteractionModuleBase<SocketInteractionContext>
         var user = context.Users.Find(Context.User.Id);
         if(user == null)
         {
+            //TODO: forward to the registration automatically
             await RespondAsync("You have not registered your ingame character yet. Please register at <link>", ephemeral: true);
             return;
         }
