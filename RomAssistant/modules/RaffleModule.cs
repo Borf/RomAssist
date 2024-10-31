@@ -1,8 +1,12 @@
 ﻿using Discord;
 using Discord.Interactions;
+using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualBasic;
 using RomAssistant.db;
 using RomAssistant.Models;
+using RomAssistant.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,10 +19,12 @@ namespace RomAssistant.modules;
 public class RaffleModule : InteractionModuleBase<SocketInteractionContext>
 {
     public Context context;
+    public IServiceProvider services;
 
-    public RaffleModule(Context context)
+    public RaffleModule(Context context, IServiceProvider services)
     {
         this.context = context;
+        this.services = services;
     }
 
     [SlashCommand("newraffle", "Starts a new raffle")]
@@ -80,10 +86,10 @@ public class RaffleModule : InteractionModuleBase<SocketInteractionContext>
     {
         var raffle = context.Raffles.Find(raffleId);
         var user = context.Users.Find(Context.User.Id);
-        if(user == null)
+        if(user == null || user.CharacterId == 0)
         {
-            //TODO: forward to the registration automatically
-            await RespondAsync("You have not registered your ingame character yet. Please register at <link>", ephemeral: true);
+            using var scope = services.CreateScope();
+            await scope.ServiceProvider.GetRequiredService<ModuleInvoker>().ModuleScoped<UserRegistrationModule>(Context).StartLink(false, "raffle_" + raffleId);
             return;
         }
         if (context.RaffleAnswers.Any(r => r.RaffleId == raffleId && r.DiscordUserId == Context.User.Id))

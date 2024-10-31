@@ -3,6 +3,7 @@ using Discord;
 using Discord.Interactions;
 using Microsoft.Extensions.DependencyInjection;
 using RomAssistant.db;
+using RomAssistant.Services;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -94,17 +95,8 @@ public class MessageToolModule : InteractionModuleBase<SocketInteractionContext>
         var raffle = context.Raffles.FirstOrDefault(r => r.DiscordMessageId == message.Id);
         if (raffle != null)
         {
-            //TODO: cache this please
-            var assembly = Assembly.GetEntryAssembly()!;
             using var scope = services.CreateScope();
-            var type = assembly.GetTypes().First(type => type.Name == "RaffleModule");
-
-            var parameters = type.GetConstructors().Where(c => !c.IsStatic).First().GetParameters();
-            var args = parameters.Select(p => scope.ServiceProvider.GetService(p.ParameterType)).ToArray();
-            RaffleModule handler = (RaffleModule)Activator.CreateInstance(type, args);
-            type.InvokeMember("SetContext", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.InvokeMethod, null, handler, new object[] { Context });
-            type.GetField("context").SetValue(handler, context);
-            await handler.HandleAdmin(message);
+            await scope.ServiceProvider.GetRequiredService<ModuleInvoker>().ModuleScoped<RaffleModule>(Context).HandleAdmin(message);
         }
     }
 }

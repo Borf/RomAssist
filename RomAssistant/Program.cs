@@ -67,6 +67,7 @@ public class Program
             .AddBackgroundService<VoiceChannelTrackerService>()
             .AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>()))
             .AddSingleton<InteractionHandler>()
+            .AddScoped<ModuleInvoker>()
             .AddBackgroundService<NameCheckerService>()
 
         ;
