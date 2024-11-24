@@ -33,7 +33,12 @@ public class StringTionary<Key, Value> : IDictionary<Key, Value> where Key : not
 {
     public string Storage { get; set; } = string.Empty;
 
-    private Dictionary<Key, Value> BuildDict() => Storage.Split("|").Select(x => x.Split(":")).ToDictionary(x => (Key)Convert.ChangeType(x[0], typeof(Key)), x => (Value)Convert.ChangeType(x.Length > 1 ? x[1] : default(Value).ToString() , typeof(Value)));
+    private Dictionary<Key, Value> BuildDict() => Storage
+        .Split("|")
+        .Select(x => x.Split(":"))
+        .ToDictionary(
+                k => (Key)Convert.ChangeType(k[0], typeof(Key)), 
+                val => (Value)Convert.ChangeType(val.Length > 1 ? val[1] : (default(Value)?.ToString() ?? "") , typeof(Value)));
     private void Save(Dictionary<Key, Value> dict)
     {
         Storage = dict.Select(x => $"{x.Key}:{x.Value}").Aggregate((x, y) => $"{x}|{y}");
@@ -112,7 +117,7 @@ public class StringTionary<Key, Value> : IDictionary<Key, Value> where Key : not
 
     bool IDictionary<Key, Value>.TryGetValue(Key key, out Value value)
     {
-        return BuildDict().TryGetValue(key, out value);
+        return BuildDict().TryGetValue(key, out value!);
     }
 }
 

@@ -63,22 +63,22 @@ namespace RomAssistant.modules
                     continue;
                 try
                 {
-                    ulong messageId = ulong.Parse(row[0].ToString());
+                    ulong messageId = ulong.Parse(row[0].ToString() ?? "");
                     DateTime dateTime = (DateTime)row[1];
-                    string user = row[2].ToString();
+                    string user = row[2].ToString() ?? "";
                     if (user == "autumnhime#0000")
                         continue;
-                    string msg = row[3].ToString();
+                    string msg = row[3].ToString() ?? "";
                     ulong cid = 0;
-                    string attachment1 = row[4].ToString();
+                    string attachment1 = row[4].ToString() ?? "";
                     if (row[9].ToString() != "#N/A")
                         if (!ulong.TryParse(row[9].ToString(), out cid))
                             Console.WriteLine("couldn't parse " + row[9].ToString());
-                    string ign = row[10].ToString();
-                    string server = row[11].ToString();
+                    string ign = row[10].ToString() ?? "";
+                    string server = row[11].ToString() ?? "";
                     if (row.Count > 12 && !string.IsNullOrEmpty(row[12].ToString()))
-                        if (!FirstCorrect.ContainsKey(row[12].ToString()))
-                            FirstCorrect[row[12].ToString()] = messageId;
+                        if (!FirstCorrect.ContainsKey(row[12].ToString() ?? ""))
+                            FirstCorrect[row[12].ToString() ?? ""] = messageId;
 
                     var entry = raffleEntries.FirstOrDefault(e => e.UserName == user);
                     if (entry == null)
@@ -106,7 +106,7 @@ namespace RomAssistant.modules
                 }
                 catch (Exception ex)
                 {
-                    //Console.WriteLine(ex.ToString());
+                    Console.WriteLine(ex.ToString());
                 }
             }
             Console.WriteLine($"Gathered {raffleEntries.Count} for {sheetName} out of {sheetData.Values.Count} rows. Writing to {targetSheetName}");
@@ -146,7 +146,7 @@ namespace RomAssistant.modules
                 if (!string.IsNullOrEmpty(sheetData.Values.FirstOrDefault(row => row != null && row.Count > 12 && row[0] != null && ulong.TryParse(row[0].ToString(), out var msgId) && msgId == messageId)?[12]?.ToString()))
                 {
                     //                    entry.WinnerEntries.Add(messageId);
-                    entry.WinnerEntries.Add(sheetData.Values.FirstOrDefault(row => row != null && row.Count > 12 && row[0] != null && ulong.TryParse(row[0].ToString(), out var msgId) && msgId == messageId)?[12]?.ToString());
+                    entry.WinnerEntries.Add(sheetData.Values.FirstOrDefault(row => row != null && row.Count > 12 && row[0] != null && ulong.TryParse(row[0].ToString(), out var msgId) && msgId == messageId)?[12]?.ToString() ?? "");
                     entry.WinnerRolls.Add(roll);
                     roll++;
                 }

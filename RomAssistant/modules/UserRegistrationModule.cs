@@ -52,7 +52,7 @@ public class UserRegistrationModule : InteractionModuleBase<SocketInteractionCon
         {
             if (referer.StartsWith("raffle_"))
             {
-                var raffle = context.Raffles.Find(int.Parse(referer[7..]));
+                var raffle = context.Raffles.Find(int.Parse(referer[7..])) ?? throw new Exception("Raffle not found");
                 if (overrideMessage)
                     await DeferAsync(ephemeral: true);
                 await ModifyOriginalResponseAsync(m =>

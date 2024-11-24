@@ -47,7 +47,7 @@ public class VoiceChannelTrackerModule : InteractionModuleBase<SocketInteraction
         await context.SaveChangesAsync();
         voiceTracker.activeChannels[Context.Channel.Id] = session.Id;
 
-        var channel = Context.Channel as SocketStageChannel;
+        var channel = Context.Channel as SocketStageChannel ?? throw new Exception("Can only be used on a stage channel");
         var currentUsers = channel.ConnectedUsers;
         Console.WriteLine("Current users: " + string.Join(", ", currentUsers.Select(u => u.Username)));
         foreach(var user in currentUsers)

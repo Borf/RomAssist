@@ -29,16 +29,17 @@ public class ModuleInvoker
 
         var parameters = type.GetConstructors().Where(c => !c.IsStatic).First().GetParameters();
         var args = parameters.Select(p => services.GetService(p.ParameterType)).ToArray();
-        T handler = (T)Activator.CreateInstance(type, args);
+        var handler = (T?)Activator.CreateInstance(type, args);
+        if (handler == null)
+            throw new Exception("Could not create " + name);
 
         if (type.GetMember("SetContext", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.InvokeMethod) != null)
         {
-            //var context = properties.FirstOrDefault(p => p.GetType().IsAssignableTo(typeof(SocketInteractionContext)));
             type.InvokeMember("SetContext", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.InvokeMethod, null, handler, new object?[] { context });
         }
 
         if (type.GetField("context") != null)
-            type.GetField("context").SetValue(handler, services.GetRequiredService<Context>());
+            type.GetField("context")?.SetValue(handler, services.GetRequiredService<Context>());
 
         return handler;
     }

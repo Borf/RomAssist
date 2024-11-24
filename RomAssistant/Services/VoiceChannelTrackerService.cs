@@ -59,7 +59,7 @@ public class VoiceChannelTrackerService : IBackgroundService
                     Console.WriteLine("Contains trigger word but skipped due to timeout");
                 else
                 {
-                    var stageChannel = message.Channel as SocketStageChannel;
+                    var stageChannel = message.Channel as SocketStageChannel ?? throw new Exception("Can only be used on stage");
                     var currentUsers = stageChannel.ConnectedUsers;
                     Console.WriteLine("Current users: " + string.Join(", ", currentUsers.Select(u => u.Username)));
                     if (currentUsers.Any(u => u.Id == message.Author.Id))

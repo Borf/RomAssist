@@ -53,7 +53,7 @@ public class RaffleModule : InteractionModuleBase<SocketInteractionContext>
 
     private async Task UpdateMessage(int id)
     {
-        var raffle = context.Raffles.Find(id);
+        var raffle = context.Raffles.Find(id) ?? throw new Exception("Raffle not found");
         var channel = Context.Guild.GetTextChannel(raffle.DiscordChannelid);
         var msg = await channel.GetMessageAsync(raffle.DiscordMessageId);
 
@@ -153,7 +153,7 @@ public class RaffleModule : InteractionModuleBase<SocketInteractionContext>
     [ComponentInteraction("raffle_admin_changecount:*:*")]
     public async Task ChangeCount(int raffleId, Server server)
     {
-        var raffle = context.Raffles.Find(raffleId);
+        var raffle = context.Raffles.Find(raffleId) ?? throw new Exception("Raffle not found");
         AmountModal m = new AmountModal();
         m.Amount = raffle.RaffleCount[server.ToString()].ToString();
         await RespondWithModalAsync<AmountModal>($"raffle_admin_dochangecount:{raffleId}:{server}", m);
@@ -162,7 +162,7 @@ public class RaffleModule : InteractionModuleBase<SocketInteractionContext>
     [ModalInteraction("raffle_admin_dochangecount:*:*")]
     public async Task DoChangeCount(int raffleId, Server server, AmountModal amount)
     {
-        var raffle = context.Raffles.Find(raffleId);
+        var raffle = context.Raffles.Find(raffleId) ?? throw new Exception("Raffle not found");
         if (int.TryParse(amount.Amount, out int count))
         {
             await DeferAsync(ephemeral: true);

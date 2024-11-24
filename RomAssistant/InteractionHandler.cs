@@ -57,11 +57,11 @@ namespace RomAssistant
 				// Execute the incoming command.
 				var result = await handler.ExecuteCommandAsync(context, services);
 
-				if (!result.IsSuccess)
+				if (result != null && !result.IsSuccess)
 				{
                     Program.Log(Module.Discord, "Error running interaction");
-                    Program.Log(Module.Discord, result.ToString());
-                    Program.Log(Module.Discord, result.Error.ToString());
+                    Program.Log(Module.Discord, result.ToString() ?? "No result string");
+                    Program.Log(Module.Discord, result.Error.ToString() ?? "No error string");
 					switch (result.Error)
 					{
 						case InteractionCommandError.UnmetPrecondition:

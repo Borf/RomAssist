@@ -59,6 +59,8 @@ namespace RomAssistant.modules
                 List<ValueRange> Data = new();
                 foreach (var msg in messages)
                 {
+                    if (msg == null)
+                        continue;
                     var index = rowIndex;
                     if (sheetData.Values != null)
                     {
@@ -70,7 +72,7 @@ namespace RomAssistant.modules
                                 continue;
                             if (sheetData.Values[row][0] == null)
                                 continue;
-                            if (sheetData.Values[row][0] == "'" + msg.Id + "")
+                            if (sheetData.Values[row][0].ToString() == "'" + msg.Id + "")
                             {
                                 index = row;
                                 sheetData.Values[row][0] = "PROCESSED";
@@ -118,7 +120,14 @@ namespace RomAssistant.modules
                 req.Execute();
                 Data.Clear();
 
-                foreach(var r in sheetData.Values)
+                if(sheetData.Values == null)
+                {
+                    status += "Error, sheetData.Values is null\n";
+                    await ModifyOriginalResponseAsync(msg => msg.Content = status);
+                    return;
+                }
+
+                foreach (var r in sheetData.Values)
                 {
                     if (r == null || r.Count < 1 || r[0]?.ToString() == "PROCESSED")
                         continue;
