@@ -69,17 +69,17 @@ namespace RomAssistant.modules
                     if (user == "autumnhime")
                         continue;
                     string userId = row[2].ToString() ?? "";
-                    string msg = row[3].ToString() ?? "";
+                    string msg = row[4].ToString() ?? "";
                     ulong cid = 0;
-                    string attachment1 = row[4].ToString() ?? "";
-                    if (row[9].ToString() != "#N/A")
-                        if (!ulong.TryParse(row[9].ToString(), out cid))
-                            Console.WriteLine("couldn't parse " + row[9].ToString());
+                    string attachment1 = row[5].ToString() ?? "";
+                    if (row[11].ToString() != "#N/A")
+                        if (!ulong.TryParse(row[11].ToString(), out cid))
+                            Console.WriteLine("couldn't parse " + row[11].ToString());
                     string ign = row[10].ToString() ?? "";
                     string server = row[11].ToString() ?? "";
-                    if (row.Count > 12 && !string.IsNullOrEmpty(row[12].ToString()))
-                        if (!FirstCorrect.ContainsKey(row[12].ToString() ?? ""))
-                            FirstCorrect[row[12].ToString() ?? ""] = messageId;
+                    if (row.Count > 14 && !string.IsNullOrEmpty(row[14].ToString()))
+                        if (!FirstCorrect.ContainsKey(row[14].ToString() ?? ""))
+                            FirstCorrect[row[14].ToString() ?? ""] = messageId;
 
                     var entry = raffleEntries.FirstOrDefault(e => e.UserName == user);
                     if (entry == null)
