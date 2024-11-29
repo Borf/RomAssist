@@ -27,6 +27,7 @@ namespace RomAssistant.db
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            Console.WriteLine(Configuration["DB"]);
             optionsBuilder
                 //.UseLoggerFactory(LoggerFactory.Create(builder => { builder.AddConsole(); }))
                 .EnableSensitiveDataLogging()
