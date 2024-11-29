@@ -206,7 +206,7 @@ namespace RomAssistant.modules
 
 
             Data.Clear();
-            for(int i = newRowIndex; i < 500; i++)
+            for(int i = newRowIndex; i < rolls+2; i++)
             {
                 ValueRange valueRange = new ValueRange()
                 {
