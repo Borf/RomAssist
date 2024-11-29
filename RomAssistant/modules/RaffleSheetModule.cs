@@ -75,8 +75,8 @@ namespace RomAssistant.modules
                     if (row[11].ToString() != "#N/A")
                         if (!ulong.TryParse(row[11].ToString(), out cid))
                             Console.WriteLine("couldn't parse " + row[11].ToString());
-                    string ign = row[10].ToString() ?? "";
-                    string server = row[11].ToString() ?? "";
+                    string ign = row[12].ToString() ?? "";
+                    string server = row[13].ToString() ?? "";
                     if (row.Count > 14 && !string.IsNullOrEmpty(row[14].ToString()))
                         if (!FirstCorrect.ContainsKey(row[14].ToString() ?? ""))
                             FirstCorrect[row[14].ToString() ?? ""] = messageId;
@@ -118,9 +118,9 @@ namespace RomAssistant.modules
             {
 
                 entry.Entries = entry.Entries
-                    .Where(messageId => !string.IsNullOrEmpty(sheetData.Values.FirstOrDefault(row => row != null && row.Count > 12 &&
+                    .Where(messageId => !string.IsNullOrEmpty(sheetData.Values.FirstOrDefault(row => row != null && row.Count > 14 &&
                             row[0] != null &&
-                            ulong.TryParse(row[0].ToString(), out var msgId) && msgId == messageId)?[12]?.ToString()))
+                            ulong.TryParse(row[0].ToString(), out var msgId) && msgId == messageId)?[14]?.ToString()))
                     .ToList();
             }
 
@@ -145,10 +145,10 @@ namespace RomAssistant.modules
             {
                 var entry = currentRound.First();
                 ulong messageId = entry.Entries.First();
-                if (!string.IsNullOrEmpty(sheetData.Values.FirstOrDefault(row => row != null && row.Count > 12 && row[0] != null && ulong.TryParse(row[0].ToString(), out var msgId) && msgId == messageId)?[12]?.ToString()))
+                if (!string.IsNullOrEmpty(sheetData.Values.FirstOrDefault(row => row != null && row.Count > 14 && row[0] != null && ulong.TryParse(row[0].ToString(), out var msgId) && msgId == messageId)?[14]?.ToString()))
                 {
                     //                    entry.WinnerEntries.Add(messageId);
-                    entry.WinnerEntries.Add(sheetData.Values.FirstOrDefault(row => row != null && row.Count > 12 && row[0] != null && ulong.TryParse(row[0].ToString(), out var msgId) && msgId == messageId)?[12]?.ToString() ?? "");
+                    entry.WinnerEntries.Add(sheetData.Values.FirstOrDefault(row => row != null && row.Count > 14 && row[0] != null && ulong.TryParse(row[0].ToString(), out var msgId) && msgId == messageId)?[14]?.ToString() ?? "");
                     entry.WinnerRolls.Add(roll);
                     roll++;
                 }
