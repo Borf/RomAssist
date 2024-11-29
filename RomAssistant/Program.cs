@@ -124,6 +124,7 @@ public class Program
 public class RaffleEntry
 {
     public string UserName { get; set; } = string.Empty;
+    public string Userid { get; set; } = string.Empty;
     public List<ulong> Entries { get; set; } = new List<ulong>();
     public List<string> Images { get; set; } = new List<string>();
     public ulong cid { get; set; }

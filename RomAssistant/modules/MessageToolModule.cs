@@ -99,4 +99,5 @@ public class MessageToolModule : InteractionModuleBase<SocketInteractionContext>
             await scope.ServiceProvider.GetRequiredService<ModuleInvoker>().ModuleScoped<RaffleModule>(Context).HandleAdmin(message);
         }
     }
+
 }

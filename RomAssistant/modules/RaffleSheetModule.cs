@@ -65,9 +65,10 @@ namespace RomAssistant.modules
                 {
                     ulong messageId = ulong.Parse(row[0].ToString() ?? "");
                     DateTime dateTime = (DateTime)row[1];
-                    string user = row[2].ToString() ?? "";
-                    if (user == "autumnhime#0000")
+                    string user = row[3].ToString() ?? "";
+                    if (user == "autumnhime")
                         continue;
+                    string userId = row[2].ToString() ?? "";
                     string msg = row[3].ToString() ?? "";
                     ulong cid = 0;
                     string attachment1 = row[4].ToString() ?? "";
@@ -86,6 +87,7 @@ namespace RomAssistant.modules
                         entry = new RaffleEntry()
                         {
                             UserName = user,
+                            Userid = userId,
                             cid = cid,
                             ign = ign,
                             server = server
@@ -169,6 +171,7 @@ namespace RomAssistant.modules
                         Values = new[] {
                                             new object?[]
                                             {
+                                                entry.Userid + "",
                                                 entry.UserName,
                                                 entry.cid,
                                                 entry.ign,
@@ -180,10 +183,10 @@ namespace RomAssistant.modules
                                                 entry.WinnerRolls.Count > 1 ? entry.WinnerEntries[1].ToString() : null,
                                                 entry.WinnerRolls.Count > 2 ? entry.WinnerRolls[2].ToString() : null,
                                                 entry.WinnerRolls.Count > 2 ? entry.WinnerEntries[2].ToString() : null,
+                                                entry.UserName,
                                             }
                                         }
                     };
-
                     Data.Add(valueRange);
                     newRowIndex++;
                 }
@@ -192,7 +195,6 @@ namespace RomAssistant.modules
                     Console.WriteLine(entry.UserName + " is a loser. This person had " + entry.Entries.Count + " entries");
                 }
             }
-
             Console.WriteLine((newRowIndex-2) + " winners");
 
             sheetsService.Spreadsheets.Values.BatchUpdate(new BatchUpdateValuesRequest()
@@ -201,6 +203,36 @@ namespace RomAssistant.modules
                 ValueInputOption = "RAW",
                 Data = Data,
             }, sheetId).Execute();
+
+
+            Data.Clear();
+            for(int i = newRowIndex; i < 500; i++)
+            {
+                ValueRange valueRange = new ValueRange()
+                {
+                    Range = $"'{targetSheetName}'!A{newRowIndex}",
+                    Values = new[] {
+                                            new object?[]
+                                            {
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ",
+                                            }
+                                        }
+                };
+                Data.Add(valueRange);
+                newRowIndex++;
+            }
 
 
 
