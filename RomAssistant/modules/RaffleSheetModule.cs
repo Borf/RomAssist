@@ -234,6 +234,12 @@ namespace RomAssistant.modules
                 newRowIndex++;
             }
 
+            sheetsService.Spreadsheets.Values.BatchUpdate(new BatchUpdateValuesRequest()
+            {
+                //ValueInputOption = "USER_ENTERED",
+                ValueInputOption = "RAW",
+                Data = Data,
+            }, sheetId).Execute();
 
 
             if (Context != null) await ModifyOriginalResponseAsync(m => m.Content = "Done");
