@@ -14,6 +14,7 @@ using Microsoft.VisualBasic;
 using Newtonsoft.Json.Linq;
 using RomAssistant;
 using RomAssistant.db;
+using RomAssistant.Models;
 using RomAssistant.Services;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -30,11 +31,11 @@ public class Program
             Directory.CreateDirectory("data");
 
         var configuration = new ConfigurationBuilder()
-            .AddJsonFile("data/appsettings.json", optional: true)
+            .AddJsonFile(Path.Combine("data", "appsettings.json"), optional: true)
+            .AddJsonFile(Path.Combine("data", "CustomizableSettings.json"), optional: true)
             .AddUserSecrets<Program>()
             .AddEnvironmentVariables()
             .Build();
-
 
         GoogleCredential credential;
         using (var stream = new FileStream("data/client_secrets.json", FileMode.Open, FileAccess.Read))
@@ -51,6 +52,7 @@ public class Program
 
         var serviceBuilder = new ServiceCollection()
             .AddSingleton<IConfiguration>(configuration)
+            .AddSingleton<Config>()
             .AddSingleton(sheetService)
             .AddSingleton(new DiscordSocketConfig()
             {

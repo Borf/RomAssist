@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using RomAssistant;
 using RomAssistant.db;
 using RomAssistant.modules;
+using RomAssistant.Services;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 

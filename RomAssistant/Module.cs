@@ -9,4 +9,5 @@ public enum Module
 {
     Discord,
     NameChecker,
+    Config,
 }

@@ -15,11 +15,13 @@ public class UserRegistrationModule : InteractionModuleBase<SocketInteractionCon
 {
     private Context context;
     public IServiceProvider services;
+    private Config _config;
 
-    public UserRegistrationModule(Context context, IServiceProvider services)
+    public UserRegistrationModule(Context context, IServiceProvider services, Config config)
     {
         this.context = context;
         this.services = services;
+        _config = config;
     }
 
     [DoAdminCheck]
@@ -156,6 +158,10 @@ public class UserRegistrationModule : InteractionModuleBase<SocketInteractionCon
         }
         else if (ulong.TryParse(data.Cid, out ulong cid))
         {
+            if (user.CharacterId == 0 && user.LastUpdateTime == null)
+                await Context.Guild.GetTextChannel(_config.RegLogChannel).SendMessageAsync($"## User <@!{Context.User.Id}> finished linking their character.\nCharacter ID {cid} on {user.Server.FullString()}");
+            else
+                await Context.Guild.GetTextChannel(_config.RegLogChannel).SendMessageAsync($"## User <@!{Context.User.Id}> changed their character ID.\nCharacter ID changed from {user.CharacterId} to {cid} on {user.Server.FullString()}");
             user.CharacterId = cid;
             user.CharacterName = string.Empty;
             user.AccountId = 0;
@@ -163,6 +169,8 @@ public class UserRegistrationModule : InteractionModuleBase<SocketInteractionCon
             user.LastCheckTime = null;
             user.LastUpdateTime = null;
             await context.SaveChangesAsync();
+           
+
             await StartLink(overrideMessage, referer);
         }
         else
