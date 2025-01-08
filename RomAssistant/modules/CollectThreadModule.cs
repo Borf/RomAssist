@@ -44,7 +44,14 @@ namespace RomAssistant.modules
                 if (tab == null)
                 {
                     await ModifyOriginalResponseAsync(msg => msg.Content = "This sheet does not exist. Sheets are " + string.Join(",", sheets.Select(s => s.Properties.Title)));
-                    return;
+                    sheetsService.Spreadsheets.BatchUpdate(new BatchUpdateSpreadsheetRequest()
+                    {
+                        Requests = new List<Request>() { new() { AddSheet = new AddSheetRequest() { Properties = new SheetProperties() { Title = sheetName } } } }
+                    }, sheetId).Execute();
+
+                    sheet = sheetsService.Spreadsheets.Get(sheetId);
+                    sheets = sheet.Execute().Sheets;
+                    tab = sheets.FirstOrDefault(s => s.Properties.Title.ToLower() == sheetName.ToLower());
                 }
                 status += "Scanning messages...\n";
                 await ModifyOriginalResponseAsync(msg => msg.Content = status);
@@ -72,7 +79,7 @@ namespace RomAssistant.modules
                                 continue;
                             if (sheetData.Values[row][0] == null)
                                 continue;
-                            if (sheetData.Values[row][0].ToString() == "'" + msg.Id + "")
+                            if (sheetData.Values[row][0].ToString().EndsWith(msg.Id + ""))
                             {
                                 index = row;
                                 sheetData.Values[row][0] = "PROCESSED";
