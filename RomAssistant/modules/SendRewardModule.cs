@@ -49,7 +49,7 @@ namespace RomAssistant
 									.WithCustomId("sendrewards-sheet:" + sheetId)
 									.WithMinValues(1)
 									.WithMaxValues(1);
-				foreach(var s in sheets)
+				foreach(var s in sheets.Take(25))
 				{
 					smb.AddOption(s.Properties.Title, s.Properties.Title);
 				}
@@ -57,8 +57,9 @@ namespace RomAssistant
 					.WithSelectMenu(smb);
 				await RespondAsync("What tab would you like to use?", components: cb.Build(), ephemeral: true);
 
-			}catch(Exception)
+			}catch(Exception ex)
 			{
+                Console.WriteLine(ex);
 				await RespondAsync("The discord bot has no access to this sheet. Please add ticketbot@ticketbot-366321.iam.gserviceaccount.com to this sheet", ephemeral: true);
 			}
 		}
