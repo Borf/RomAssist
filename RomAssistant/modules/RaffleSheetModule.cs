@@ -72,11 +72,11 @@ namespace RomAssistant.modules
                     string msg = row[4].ToString() ?? "";
                     ulong cid = 0;
                     string attachment1 = row[5].ToString() ?? "";
-                    if (row[11].ToString() != "#N/A")
-                        if (!ulong.TryParse(row[11].ToString(), out cid))
-                            Console.WriteLine("couldn't parse " + row[11].ToString());
-                    string ign = row[12].ToString() ?? "";
-                    string server = row[13].ToString() ?? "";
+                    if (row[12].ToString() != "#N/A")
+                        if (!ulong.TryParse(row[12].ToString(), out cid))
+                            Console.WriteLine("couldn't parse " + row[12].ToString());
+                    string ign = row[13].ToString() ?? "";
+                    string server = row[14].ToString() ?? "";
                     if (row.Count > 15 && !string.IsNullOrEmpty(row[15].ToString()))
                         if (!FirstCorrect.ContainsKey(row[15].ToString() ?? ""))
                             FirstCorrect[row[15].ToString() ?? ""] = messageId;
