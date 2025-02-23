@@ -140,7 +140,10 @@ namespace RomAssistant
                                 if (user == null)
                                 {
 									if (row.Count > 2 && row[2].ToString() != "Error: User not found")
-	                                    sheetsService.Spreadsheets.Values.BatchUpdate(SetStatus(tabTitle, i + 1, "Error: User not found"), sheetId).Execute();
+									{
+                                        Console.Write("....updating sheet");
+                                        sheetsService.Spreadsheets.Values.BatchUpdate(SetStatus(tabTitle, i + 1, "Error: User not found"), sheetId).Execute();
+									}
                                     Console.WriteLine("....User not found!");
 									wait = false;
 									break;
@@ -155,8 +158,16 @@ namespace RomAssistant
 							{
 								Console.WriteLine("Google API exception, probably throttling: " + ex.ToString());
 								Console.WriteLine("Waiting for 30 seconds and continueing");
-								await Task.Delay(TimeSpan.FromSeconds(10));
-								continue;
+								await Task.Delay(TimeSpan.FromSeconds(30));
+								try
+								{
+									sheetsService.Spreadsheets.Values.BatchUpdate(SetStatus(tabTitle, i + 1, "Sent"), sheetId).Execute();
+									break;
+								}catch(Exception ex2)
+								{
+                                    Console.WriteLine("Google API exception in inner, probably throttling: " + ex2.ToString());
+								}
+                                continue;
 							}
 							catch (Exception ex)
 							{
