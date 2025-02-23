@@ -140,7 +140,7 @@ namespace RomAssistant
                                 {
                                     sheetsService.Spreadsheets.Values.BatchUpdate(SetStatus(tabTitle, i + 1, "Error: User not found"), sheetId).Execute();
                                     Console.WriteLine("....User not found!");
-                                    continue;
+									break;
                                 }
                                 
 								var dm = await user.CreateDMChannelAsync();
