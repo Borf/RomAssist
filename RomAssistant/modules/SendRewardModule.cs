@@ -174,7 +174,7 @@ namespace RomAssistant
 							break; //stop retrying
 						}
                     }
-					await Task.Delay(2500);
+					await Task.Delay(1000);
 				}
 
 				Console.WriteLine("Done!");
