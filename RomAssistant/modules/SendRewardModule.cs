@@ -114,49 +114,64 @@ namespace RomAssistant
 				var users = await guild.GetUsersAsync().FlattenAsync();
 				for (int i = 0; i < values.Values.Count; i++)
 				{
-					var row = values.Values[i];
-					var status = "";
-					if (row.Count < 1 || row[0].ToString() == "")
-						continue;
-					if (row.Count > 2)
-						status = row[2].ToString();
-					if (status == "Sent")
-						continue;
-					string discordName = (string)row[0];
-					Console.Write("Sending to " + discordName);
-					//if(discordName.Contains("#"))
-					{
-						IGuildUser? user = null;
-						if (discordName.Contains("#"))
-							user = users.FirstOrDefault(u => u.Username + "#" + u.Discriminator == discordName);
-						else if (ulong.TryParse(discordName, out ulong did))
-							user = users.FirstOrDefault(u => u.Id == did);
-						else if (user == null && !discordName.Contains("#"))
-							user = users.FirstOrDefault(u => u.Username == discordName);
-						if (user == null)
+					for(int tries = 0; tries < 3; tries++) {
+						var row = values.Values[i];
+						var status = "";
+						if (row.Count < 1 || row[0].ToString() == "")
+							continue;
+						if (row.Count > 2)
+							status = row[2].ToString();
+						if (status == "Sent")
+							continue;
+						string discordName = (string)row[0];
+						Console.Write("Sending to " + discordName);
+						//if(discordName.Contains("#"))
 						{
-							sheetsService.Spreadsheets.Values.BatchUpdate(SetStatus(tabTitle, i + 1, "Error: User not found"), sheetId).Execute();
-                            Console.WriteLine("....User not found!");
-                            continue;
-						}
-						try
-						{
-							var dm = await user.CreateDMChannelAsync();
-							await dm.SendMessageAsync(row[1].ToString());
-							sheetsService.Spreadsheets.Values.BatchUpdate(SetStatus(tabTitle, i + 1, "Sent"), sheetId).Execute();
-                            Console.WriteLine("...sent");
-                        }
-                        catch (Exception ex)
-						{
-                            Console.WriteLine("...error: " + ex.Message);
-                            try
-                            {
-								sheetsService.Spreadsheets.Values.BatchUpdate(SetStatus(tabTitle, i + 1, "Error: " + ex.Message), sheetId).Execute();
-							} catch (Exception ex2)
+							IGuildUser? user = null;
+							if (discordName.Contains("#"))
+								user = users.FirstOrDefault(u => u.Username + "#" + u.Discriminator == discordName);
+							else if (ulong.TryParse(discordName, out ulong did))
+								user = users.FirstOrDefault(u => u.Id == did);
+							else if (user == null && !discordName.Contains("#"))
+								user = users.FirstOrDefault(u => u.Username == discordName);
+							try
 							{
-                                Console.WriteLine("...error2: " + ex2.Message);
+                                if (user == null)
+                                {
+                                    sheetsService.Spreadsheets.Values.BatchUpdate(SetStatus(tabTitle, i + 1, "Error: User not found"), sheetId).Execute();
+                                    Console.WriteLine("....User not found!");
+                                    continue;
+                                }
+                                
+								var dm = await user.CreateDMChannelAsync();
+								await dm.SendMessageAsync(row[1].ToString());
+								sheetsService.Spreadsheets.Values.BatchUpdate(SetStatus(tabTitle, i + 1, "Sent"), sheetId).Execute();
+								Console.WriteLine("...sent");
+							}
+							catch(Google.GoogleApiException ex)
+							{
+								Console.WriteLine("Google API exception, probably throttling: " + ex.ToString());
+								Console.WriteLine("Waiting for 30 seconds and continueing");
+								await Task.Delay(TimeSpan.FromSeconds(10));
+								continue;
+							}
+							catch (Exception ex)
+							{
+								Console.WriteLine("...error: " + ex.Message);
+								try
+								{
+									sheetsService.Spreadsheets.Values.BatchUpdate(SetStatus(tabTitle, i + 1, "Error: " + ex.Message), sheetId).Execute();
+								}
+								catch (Exception ex2)
+								{
+                                    Console.WriteLine("Google API exception, probably throttling: " + ex2.ToString());
+                                    Console.WriteLine("Waiting for 30 seconds and continueing");
+                                    await Task.Delay(TimeSpan.FromSeconds(10));
+                                    continue;
+                                }
                             }
-                        }
+							break; //stop retrying
+						}
                     }
 					await Task.Delay(2500);
 				}
