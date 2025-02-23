@@ -138,7 +138,8 @@ namespace RomAssistant
 							{
                                 if (user == null)
                                 {
-                                    sheetsService.Spreadsheets.Values.BatchUpdate(SetStatus(tabTitle, i + 1, "Error: User not found"), sheetId).Execute();
+									if (row.Count > 2 && row[2].ToString() != "Error: User not found")
+	                                    sheetsService.Spreadsheets.Values.BatchUpdate(SetStatus(tabTitle, i + 1, "Error: User not found"), sheetId).Execute();
                                     Console.WriteLine("....User not found!");
 									break;
                                 }
