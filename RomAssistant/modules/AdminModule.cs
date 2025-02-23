@@ -27,7 +27,12 @@ public class AdminModule : InteractionModuleBase<SocketInteractionContext>
             .Build()
             );
     }
-
+    [SlashCommand("restart", "Restarts the bot")]
+    public async Task Restart()
+    {
+        await RespondAsync("Restarting....", ephemeral: true);
+        Environment.Exit(0);
+    }
 
     [ComponentInteraction("setreglogchannel")]
     public async Task SetRegLogChannel()
