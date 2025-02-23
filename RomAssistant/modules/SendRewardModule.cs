@@ -119,11 +119,17 @@ namespace RomAssistant
 						var row = values.Values[i];
 						var status = "";
 						if (row.Count < 1 || row[0].ToString() == "")
-							continue;
-						if (row.Count > 2)
+                        {
+                            wait = false;
+                            break;
+                        }
+                        if (row.Count > 2)
 							status = row[2].ToString();
 						if (status == "Sent")
-							continue;
+						{
+							wait = false;
+							break;
+						}
 						string discordName = (string)row[0];
 						Console.Write("Sending to " + discordName);
 						//if(discordName.Contains("#"))
