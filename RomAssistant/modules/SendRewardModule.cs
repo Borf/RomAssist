@@ -139,10 +139,12 @@ namespace RomAssistant
 								user = users.FirstOrDefault(u => u.Username + "#" + u.Discriminator == discordName);
 							else if (ulong.TryParse(discordName, out ulong did))
 								user = users.FirstOrDefault(u => u.Id == did);
-							else if (user == null && !discordName.Contains("#"))
-								user = users.FirstOrDefault(u => u.Username == discordName);
-							try
-							{
+                            else if (user == null && !discordName.Contains("#"))
+                                user = users.FirstOrDefault(u => u.Username == discordName);
+                            else if (user == null && !discordName.Contains("#"))
+                                user = users.FirstOrDefault(u => u.Username.ToLower() == discordName.ToLower());
+                            try
+                            {
                                 if (user == null)
                                 {
 									if (row.Count > 2 && row[2].ToString() != "Error: User not found")
