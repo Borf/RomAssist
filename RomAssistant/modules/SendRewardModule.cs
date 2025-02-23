@@ -19,6 +19,7 @@ namespace RomAssistant
 	public class SendRewardModule : InteractionModuleBase<SocketInteractionContext>
 	{
 		static Task? SendTask = null;
+		static ulong SenderId = 0;
 
 		private InteractionHandler _handler;
 		private Context context;
@@ -80,65 +81,85 @@ namespace RomAssistant
 			buttons
 				.WithButton("Yes", "sendrewards-confirm:" + sheetId + "," + tabTitle, ButtonStyle.Success)
 				.WithButton("No", "cancel", ButtonStyle.Danger);
-			await FollowupAsync(values.Values.Count + " values found in tab " + tabTitle + ". Are you sure you want to send?", components: buttons.Build(), ephemeral: true);
+
+			var totalCount = values.Values.Count;
+            var notTried = values.Values.Count(v => v.Count < 3 || string.IsNullOrEmpty(v[2]?.ToString()));
+            var retry = values.Values.Count(v => v.Count > 2 && !string.IsNullOrEmpty(v[2]?.ToString()) && v[2].ToString() != "Sent");
+
+            await FollowupAsync(
+				$"{values.Values.Count} values found in tab {tabTitle}.\n" +
+				$"{notTried} values have not been sent yet\n" +
+				$"{retry} had an error and will be retried\n" +
+				$"\n" +
+				$"Are you sure you want to send?", components: buttons.Build(), ephemeral: true);
 		}
 
 		[ComponentInteraction("sendrewards-confirm:*,*")]
 		public async Task SendRewardsSheetConfirm(string sheetId, string tabTitle)
 		{
 			await RespondAsync("Sending messages!", ephemeral: true);
-			if(SendTask == null)
+			SenderId = Context.User.Id;
+
+            if (SendTask == null)
 				SendTask = SendMessages(sheetsService, Context.Guild, sheetId, tabTitle);
 		}
 
 		private async Task SendMessages(SheetsService sheetsService, SocketGuild guild, string sheetId, string tabTitle)
 		{
-			Console.WriteLine("Getting values");
-			var values = sheetsService.Spreadsheets.Values.Get(sheetId, $"{tabTitle}!A:Z").Execute();
-			Console.WriteLine("Getting users");
-			var users = await guild.GetUsersAsync().FlattenAsync();
-			for (int i = 0; i < values.Values.Count; i++)
+			try
 			{
-				var row = values.Values[i];
-				var status = "";
-				if (row.Count < 1 || row[0].ToString() == "")
-					continue;
-				if(row.Count > 2)
-					status = row[2].ToString();
-				if (status == "Sent")
-					continue;
-				string discordName = (string)row[0];
-				Console.WriteLine("Sending to " + discordName);
-				//if(discordName.Contains("#"))
+				Console.WriteLine("Getting values");
+				var values = sheetsService.Spreadsheets.Values.Get(sheetId, $"{tabTitle}!A:Z").Execute();
+				Console.WriteLine("Getting users");
+				var users = await guild.GetUsersAsync().FlattenAsync();
+				for (int i = 0; i < values.Values.Count; i++)
 				{
-					IGuildUser? user = null;
-					if (discordName.Contains("#"))
-						user = users.FirstOrDefault(u => u.Username + "#" + u.Discriminator == discordName);
-					else if (ulong.TryParse(discordName, out ulong did))
-						user = users.FirstOrDefault(u => u.Id == did);
-					else if(user == null && !discordName.Contains("#"))
-                        user = users.FirstOrDefault(u => u.Username == discordName);
-                    if (user == null)
-					{
-						sheetsService.Spreadsheets.Values.BatchUpdate(SetStatus(tabTitle, i + 1, "Error: User not found"), sheetId).Execute();
+					var row = values.Values[i];
+					var status = "";
+					if (row.Count < 1 || row[0].ToString() == "")
 						continue;
-					}
-					try
+					if (row.Count > 2)
+						status = row[2].ToString();
+					if (status == "Sent")
+						continue;
+					string discordName = (string)row[0];
+					Console.WriteLine("Sending to " + discordName);
+					//if(discordName.Contains("#"))
 					{
-						var dm = await user.CreateDMChannelAsync();
-						await dm.SendMessageAsync(row[1].ToString());
-						sheetsService.Spreadsheets.Values.BatchUpdate(SetStatus(tabTitle, i + 1, "Sent"), sheetId).Execute();
+						IGuildUser? user = null;
+						if (discordName.Contains("#"))
+							user = users.FirstOrDefault(u => u.Username + "#" + u.Discriminator == discordName);
+						else if (ulong.TryParse(discordName, out ulong did))
+							user = users.FirstOrDefault(u => u.Id == did);
+						else if (user == null && !discordName.Contains("#"))
+							user = users.FirstOrDefault(u => u.Username == discordName);
+						if (user == null)
+						{
+							sheetsService.Spreadsheets.Values.BatchUpdate(SetStatus(tabTitle, i + 1, "Error: User not found"), sheetId).Execute();
+							continue;
+						}
+						try
+						{
+							var dm = await user.CreateDMChannelAsync();
+							await dm.SendMessageAsync(row[1].ToString());
+							sheetsService.Spreadsheets.Values.BatchUpdate(SetStatus(tabTitle, i + 1, "Sent"), sheetId).Execute();
+						}
+						catch (Exception ex)
+						{
+							sheetsService.Spreadsheets.Values.BatchUpdate(SetStatus(tabTitle, i + 1, "Error: " + ex.Message), sheetId).Execute();
+						}
 					}
-					catch (Exception ex)
-					{
-						sheetsService.Spreadsheets.Values.BatchUpdate(SetStatus(tabTitle, i + 1, "Error: " + ex.Message), sheetId).Execute();
-					}
+					await Task.Delay(2500);
 				}
-				await Task.Delay(500);
-			}
 
-			Console.WriteLine("Done!");
-
+				Console.WriteLine("Done!");
+                await Context.User.SendMessageAsync("Sending messages is done!");
+            }
+            catch (Exception ex)
+			{
+                Console.WriteLine(ex);
+				await Context.User.SendMessageAsync("Error while sending rewards: " + ex.Message);
+            }
 			SendTask = null;
 		}
 
