@@ -123,7 +123,7 @@ namespace RomAssistant
 					if (status == "Sent")
 						continue;
 					string discordName = (string)row[0];
-					Console.WriteLine("Sending to " + discordName);
+					Console.Write("Sending to " + discordName);
 					//if(discordName.Contains("#"))
 					{
 						IGuildUser? user = null;
@@ -136,19 +136,28 @@ namespace RomAssistant
 						if (user == null)
 						{
 							sheetsService.Spreadsheets.Values.BatchUpdate(SetStatus(tabTitle, i + 1, "Error: User not found"), sheetId).Execute();
-							continue;
+                            Console.WriteLine("....User not found!");
+                            continue;
 						}
 						try
 						{
 							var dm = await user.CreateDMChannelAsync();
 							await dm.SendMessageAsync(row[1].ToString());
 							sheetsService.Spreadsheets.Values.BatchUpdate(SetStatus(tabTitle, i + 1, "Sent"), sheetId).Execute();
-						}
-						catch (Exception ex)
+                            Console.WriteLine("...sent");
+                        }
+                        catch (Exception ex)
 						{
-							sheetsService.Spreadsheets.Values.BatchUpdate(SetStatus(tabTitle, i + 1, "Error: " + ex.Message), sheetId).Execute();
-						}
-					}
+                            Console.WriteLine("...error: " + ex.Message);
+                            try
+                            {
+								sheetsService.Spreadsheets.Values.BatchUpdate(SetStatus(tabTitle, i + 1, "Error: " + ex.Message), sheetId).Execute();
+							} catch (Exception ex2)
+							{
+                                Console.WriteLine("...error2: " + ex2.Message);
+                            }
+                        }
+                    }
 					await Task.Delay(2500);
 				}
 
