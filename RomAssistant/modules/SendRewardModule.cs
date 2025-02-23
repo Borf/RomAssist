@@ -114,6 +114,7 @@ namespace RomAssistant
 				var users = await guild.GetUsersAsync().FlattenAsync();
 				for (int i = 0; i < values.Values.Count; i++)
 				{
+					bool wait = true;
 					for(int tries = 0; tries < 3; tries++) {
 						var row = values.Values[i];
 						var status = "";
@@ -141,6 +142,7 @@ namespace RomAssistant
 									if (row.Count > 2 && row[2].ToString() != "Error: User not found")
 	                                    sheetsService.Spreadsheets.Values.BatchUpdate(SetStatus(tabTitle, i + 1, "Error: User not found"), sheetId).Execute();
                                     Console.WriteLine("....User not found!");
+									wait = false;
 									break;
                                 }
                                 
@@ -174,7 +176,8 @@ namespace RomAssistant
 							break; //stop retrying
 						}
                     }
-					await Task.Delay(1000);
+					if(wait)
+						await Task.Delay(1000);
 				}
 
 				Console.WriteLine("Done!");
