@@ -123,10 +123,11 @@ namespace RomAssistant.modules
                             ulong.TryParse(row[0].ToString(), out var msgId) && msgId == messageId)?[15]?.ToString()))
                     .ToList();
             }
+            Console.WriteLine($"Gathered {raffleEntries.Count} people, with {raffleEntries.Sum(re => re.Entries.Count)} total");
 
             int roll = 1;
             var currentRound = raffleEntries.Raffle();
-
+            //first, make sure the people who answered correctly first get a win
             foreach (var fc in FirstCorrect)
             {
                 var entry = raffleEntries.FirstOrDefault(r => r.Entries.Contains(fc.Value));
@@ -134,6 +135,7 @@ namespace RomAssistant.modules
                 {
                     entry.WinnerRolls.Add(roll);
                     entry.WinnerEntries.Add(fc.Key);
+                    entry.Entries.RemoveAt(0);
                     currentRound.Remove(entry);
                     roll++;
                 }
