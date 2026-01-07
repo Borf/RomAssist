@@ -105,7 +105,7 @@ public class RaffleSheetModule : InteractionModuleBase<SocketInteractionContext>
 
                 if (!string.IsNullOrEmpty(attachment1) && entry.Images.Count < 3)
                     entry.Images.Add(attachment1);
-                if(entry.Entries.Count < 3)
+                if(entry.Entries.Count < 6)
                     entry.Entries.Add(messageId);
             }
             catch (Exception ex)
