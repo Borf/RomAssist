@@ -240,6 +240,8 @@ public class RaffleSheetModule : InteractionModuleBase<SocketInteractionContext>
                                             null,
                                             null,
                                             null,
+                                            null,
+                                            null,
                                             "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ",
                                         }
                                     }
