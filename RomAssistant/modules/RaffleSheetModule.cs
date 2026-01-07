@@ -334,35 +334,41 @@ public class RaffleSheetModule : InteractionModuleBase<SocketInteractionContext>
                     continue;
                 }
                 Console.WriteLine("Finding CID " + cid);
-                var res = await new HttpClient().GetStringAsync("https://romapi.borf.nl/characternoserver/" + cid);
-
-                if (!res.StartsWith("{"))
-                {
-                    Console.WriteLine("CID " + cid + " got error: " + res);
-                    continue;
-                }
-
-                var charData = JsonSerializer.Deserialize<JsonObject>(res)!;
-                Console.WriteLine("Found character " + charData["Name"].GetValue<string>());
                 try
                 {
-                    await ModifyOriginalResponseAsync(m => m.Content = "Scanned " + index + " / " + allCids.Count());
-                }
-                catch (Exception) { }
+                    var res = await new HttpClient().GetStringAsync("https://romapi.borf.nl/characternoserver/" + cid);
 
-                Rows.Add(new RowData()
-                {
-                    Values = new List<CellData>()
+                    if (!res.StartsWith("{"))
                     {
-                        new() { UserEnteredValue = new() {  NumberValue = cid } },
-                        new() { UserEnteredValue = new() {  StringValue = ((Server) (charData["Server"].GetValue<int>())).ToString() } },
-                        new() { UserEnteredValue = new() {  StringValue = charData["Name"].GetValue<string>() } },
-                        new() { UserEnteredValue = new() {  NumberValue = charData["AccountId"].GetValue<ulong>() } },
-                        new() { UserEnteredValue = new() {  StringValue = charData["GuildName"].GetValue<string>() } },
-                        new() { UserEnteredValue = new() {  NumberValue = charData["Serverid"].GetValue<int>() } },
-                        new() { UserEnteredValue = new() {  StringValue = DateTimeOffset.FromUnixTimeSeconds(charData["LastScanTimeStamp"].GetValue<long>()).ToString() } },
+                        Console.WriteLine("CID " + cid + " got error: " + res);
+                        continue;
                     }
-                });
+
+                    var charData = JsonSerializer.Deserialize<JsonObject>(res)!;
+                    Console.WriteLine("Found character " + charData["Name"].GetValue<string>());
+                    try
+                    {
+                        await ModifyOriginalResponseAsync(m => m.Content = "Scanned " + index + " / " + allCids.Count());
+                    }
+                    catch (Exception) { }
+
+                    Rows.Add(new RowData()
+                    {
+                        Values = new List<CellData>()
+                        {
+                            new() { UserEnteredValue = new() {  NumberValue = cid } },
+                            new() { UserEnteredValue = new() {  StringValue = ((Server) (charData["Server"].GetValue<int>())).ToString() } },
+                            new() { UserEnteredValue = new() {  StringValue = charData["Name"].GetValue<string>() } },
+                            new() { UserEnteredValue = new() {  NumberValue = charData["AccountId"].GetValue<ulong>() } },
+                            new() { UserEnteredValue = new() {  StringValue = charData["GuildName"].GetValue<string>() } },
+                            new() { UserEnteredValue = new() {  NumberValue = charData["Serverid"].GetValue<int>() } },
+                            new() { UserEnteredValue = new() {  StringValue = DateTimeOffset.FromUnixTimeSeconds(charData["LastScanTimeStamp"].GetValue<long>()).ToString() } },
+                        }
+                    });
+                }catch(Exception e)
+                {
+                    Console.WriteLine(e.ToString());
+                }
 
                 if (Rows.Count > 5)
                 {
