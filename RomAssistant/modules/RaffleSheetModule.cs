@@ -187,6 +187,12 @@ public class RaffleSheetModule : InteractionModuleBase<SocketInteractionContext>
                                             entry.WinnerRolls.Count > 1 ? entry.WinnerEntries[1].ToString() : null,
                                             entry.WinnerRolls.Count > 2 ? entry.WinnerRolls[2].ToString() : null,
                                             entry.WinnerRolls.Count > 2 ? entry.WinnerEntries[2].ToString() : null,
+                                            entry.WinnerRolls.Count > 3 ? entry.WinnerRolls[3].ToString() : null,
+                                            entry.WinnerRolls.Count > 3 ? entry.WinnerEntries[3].ToString() : null,
+                                            entry.WinnerRolls.Count > 4 ? entry.WinnerRolls[4].ToString() : null,
+                                            entry.WinnerRolls.Count > 4 ? entry.WinnerEntries[4].ToString() : null,
+                                            entry.WinnerRolls.Count > 5 ? entry.WinnerRolls[5].ToString() : null,
+                                            entry.WinnerRolls.Count > 5 ? entry.WinnerEntries[5].ToString() : null,
                                             entry.UserName,
                                         }
                                     }
@@ -218,6 +224,10 @@ public class RaffleSheetModule : InteractionModuleBase<SocketInteractionContext>
                 Values = new[] {
                                         new object?[]
                                         {
+                                            null,
+                                            null,
+                                            null,
+                                            null,
                                             null,
                                             null,
                                             null,
