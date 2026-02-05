@@ -10,6 +10,7 @@ using Google.Apis.Sheets.v4.Data;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualBasic;
 using Newtonsoft.Json.Linq;
 using RomAssistant;
@@ -54,6 +55,7 @@ public class Program
             .AddSingleton<IConfiguration>(configuration)
             .AddSingleton<Config>()
             .AddSingleton(sheetService)
+            .AddLogging(configure => configure.AddConsole())
             .AddSingleton(new DiscordSocketConfig()
             {
                 GatewayIntents = (GatewayIntents.AllUnprivileged
@@ -64,6 +66,7 @@ public class Program
                     & ~GatewayIntents.GuildInvites,
                 AlwaysDownloadUsers = true,
             })
+            .AddTransient<SheetsORM>()
             .AddDbContext<Context>()
             //    .AddBackgroundService<NameCheckerService>()
             .AddSingleton<DiscordSocketClient>()
