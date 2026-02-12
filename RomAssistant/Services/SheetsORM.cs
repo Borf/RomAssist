@@ -108,7 +108,7 @@ public class SheetsORM
                     logger.LogError("Unsupported property type {PropertyType} for property {Property}", prop.PropertyType, prop.Name);
                 // Add more type conversions as needed
             }
-            if(key.GetValue(obj) == key.GetValue(empty))
+            if(key.GetValue(obj).Equals(key.GetValue(empty)))
                 continue; //skip empty keys
             result.Add(obj);
         }
@@ -171,7 +171,7 @@ public class SheetsORM
                 }, sheetId).Execute();
             }
             var headers = sheetData.Values[0].Select(h => h.ToString()!).ToList();
-            rows.columnIndices = headers.Select((h, i) => new { h, i }).ToDictionary(x => x.h, x => x.i);
+            rows.columnIndices = headers.Select((h, i) => new { h, i }).Where(kv => !string.IsNullOrEmpty(kv.h)).ToDictionary(x => x.h, x => x.i);
         }
 
 

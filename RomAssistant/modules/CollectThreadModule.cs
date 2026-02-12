@@ -184,7 +184,7 @@ public class CollectThreadModule : InteractionModuleBase<SocketInteractionContex
 
 
     [SlashCommand("gathermessages2", "Gathers all messages in a thread into an excel")]
-    public async Task GatherMessages2([Summary(description: "The ID in the url")] string sheetId, [Summary(description: "The name of the tab to store into")] string sheetName)
+    public async Task GatherMessages2([Summary(description: "The ID in the url")] string sheetId, [Summary(description: "The name of the tab to store into")] string sheetName = "Messages")
     {
         await DeferAsync(ephemeral: true);
         await ModifyOriginalResponseAsync(msg => msg.Content = "Fetching existing rows");
