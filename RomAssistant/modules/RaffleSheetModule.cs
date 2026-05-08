@@ -348,8 +348,8 @@ public class RaffleSheetModule : InteractionModuleBase<SocketInteractionContext>
                         foreach (var el in parsed)
                         {
                             var s = el["Server"].GetValue<int>();
-                            Console.WriteLine($"Found character {el["Name"].GetValue<string>()} on server {(Server)s}, number {(((int)Enum.Parse<Server>(server)) & 0xFFFF000)}");
-                            if ((((int)Enum.Parse<Server>(server)) & 0xFFFF0000) == (s & 0xFFFF000))
+                            Console.WriteLine($"Found character {el["Name"].GetValue<string>()} on server {(Server)s}, number {(int)(Server)s}, looking for {(((int)Enum.Parse<Server>(server)) & 0xFFF000)}");
+                            if ((((int)Enum.Parse<Server>(server)) & 0xFFFF000) == (s & 0xFFFF000))
                             {
                                 res = JsonSerializer.Serialize(el);
                                 found = true;
