@@ -339,6 +339,27 @@ public class RaffleSheetModule : InteractionModuleBase<SocketInteractionContext>
                 try
                 {
                     var res = await new HttpClient().GetStringAsync("https://romapi.borf.nl/characternoserver/" + cid);
+                    if (!res.StartsWith("["))
+                    {
+                        Console.WriteLine("CID " + cid + " on multiple servers");
+                        
+                        var parsed = JsonSerializer.Deserialize<JsonArray>(res);
+                        bool found = false;
+                        foreach (var el in parsed)
+                        {
+                            var s = el["Server"].GetValue<int>();
+                            if ((((int)Enum.Parse<Server>(server)) & 0xFFFF0000) == (s & 0xFFFF0000))
+                            {
+                                res = JsonSerializer.Serialize(el);
+                                found = true;
+                            }
+                        }
+                        if(!found)
+                        {
+                            Console.WriteLine("Could not find CID for server " + server + " though, so skipping");
+                            continue;
+                        }
+                    }
 
                     if (!res.StartsWith("{"))
                     {
