@@ -361,7 +361,7 @@ public class RaffleSheetModule : InteractionModuleBase<SocketInteractionContext>
                             new() { UserEnteredValue = new() {  NumberValue = cid } },
                             new() { UserEnteredValue = new() {  StringValue = ((Server) (charData["Server"].GetValue<int>())).ToString() } },
                             new() { UserEnteredValue = new() {  StringValue = charData["Name"].GetValue<string>() } },
-                            new() { UserEnteredValue = new() {  NumberValue = charData["AccountId"].GetValue<ulong>() } },
+                            new() { UserEnteredValue = new() {  StringValue = "" + charData["AccountId"].GetValue<ulong>() } },
                             new() { UserEnteredValue = new() {  StringValue = charData["GuildName"].GetValue<string>() } },
                             new() { UserEnteredValue = new() {  NumberValue = charData["Serverid"].GetValue<int>() } },
                             new() { UserEnteredValue = new() {  StringValue = DateTimeOffset.FromUnixTimeSeconds(charData["LastScanTimeStamp"].GetValue<long>()).ToString() } },
