@@ -339,7 +339,7 @@ public class RaffleSheetModule : InteractionModuleBase<SocketInteractionContext>
                 try
                 {
                     var res = await new HttpClient().GetStringAsync("https://romapi.borf.nl/characternoserver/" + cid);
-                    if (!res.StartsWith("["))
+                    if (res.StartsWith("["))
                     {
                         Console.WriteLine("CID " + cid + " on multiple servers");
                         
