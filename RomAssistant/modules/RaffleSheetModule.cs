@@ -360,8 +360,7 @@ public class RaffleSheetModule : InteractionModuleBase<SocketInteractionContext>
                             continue;
                         }
                     }
-
-                    if (!res.StartsWith("{"))
+                    else if (!res.StartsWith("{"))
                     {
                         Console.WriteLine("CID " + cid + " got error: " + res);
                         continue;
