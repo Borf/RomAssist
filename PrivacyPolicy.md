@@ -1,6 +1,6 @@
 # Privacy Policy for RomAssistant
 
-**Effective date:** [Date]
+**Effective date:** 06-08-2026
 
 ## 1. Introduction
 
